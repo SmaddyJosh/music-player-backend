@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express= require('express');
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
@@ -8,7 +9,7 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
-mongoose.connect('mongodb+srv://mulijoshua681_db_user:josh@cluster0.2wcqfer.mongodb.net/?appName=Cluster0');
+mongoose.connect(process.env.MONGO_URI);
 
 //register route
 app.post('/register', async (req, res) => {
