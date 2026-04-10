@@ -1,5 +1,5 @@
 require('dotenv').config();
-const express= require('express');
+const express = require('express');
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 const cors = require('cors');
@@ -12,11 +12,11 @@ app.use(cors());
 mongoose.connect(process.env.MONGO_URI);
 
 //register route
-app.post('/register', async (req, res) => {
-    
+app.post('/api/register', async (req, res) => {
+
     try {
-        const emailExists= await User.findOne({email: req.body.email});
-        if(emailExists) return res.status(400).send('Email already exists');
+        const emailExists = await User.findOne({ email: req.body.email });
+        if (emailExists) return res.status(400).json({ error: 'Email already exists' });
 
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(req.body.password, salt);
@@ -27,21 +27,21 @@ app.post('/register', async (req, res) => {
         });
 
         await user.save();
-        res.status(201).json({message: 'User registered successfully'});
-       
+        res.status(201).json({ message: 'User registered successfully' });
+
     } catch (err) {
-        res.status(400).send(err);
+        res.status(400).json({ error: err.message || 'An error occurred during registration' });
     };
 });
 
 //login route
-app.post('/login', async (req, res) => {
+app.post('/api/login', async (req, res) => {
     try {
-        const user = await User.findOne({email: req.body.email});
-        if(!user) return res.status(400).send('Email not found');
+        const user = await User.findOne({ email: req.body.email });
+        if (!user) return res.status(400).json({ error: 'Email not found' });
 
         const validPass = await bcrypt.compare(req.body.password, user.password);
-        if(!validPass) return res.status(400).send('Invalid password');
+        if (!validPass) return res.status(400).json({ error: 'Invalid password' });
 
         res.status(200).json({
             message: 'Login successful',
@@ -50,10 +50,10 @@ app.post('/login', async (req, res) => {
             }
         });
     } catch (err) {
-        res.status(500).json({error: 'An error occurred during login'   });
+        res.status(500).json({ error: 'An error occurred during login' });
     }
-    });
-    
-    app.listen(5000, () => {
-        console.log('Server is running on port 5000');
-    });
+});
+
+app.listen(5000, () => {
+    console.log('Server is running on port 5000');
+});
